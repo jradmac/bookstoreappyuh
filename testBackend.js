@@ -5,7 +5,9 @@ const path = require('path');
 
 // Try multiple potential API endpoints
 const apiUrls = [
-  'http://localhost:5200/api/Books',  // Explicit port we're using now
+  'http://localhost:5300/api/Books',  // Updated port
+  'https://localhost:7300/api/Books',  // Updated port
+  'http://localhost:5200/api/Books',  // Old explicit port we were using
   'https://localhost:7043/api/Books',
   'http://localhost:5017/api/Books',
   'https://localhost:5001/api/Books',

@@ -364,103 +364,162 @@ const BookList = () => {
     );
   };
 
+  // Render book cards
+  const renderBooks = () => {
+    if (!bookData || !bookData.books || bookData.books.length === 0) {
+      return (
+        <div className="alert alert-info">
+          <i className="bi bi-info-circle me-2"></i>
+          No books found. Try changing your filter criteria.
+        </div>
+      );
+    }
+
+    return (
+      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {bookData.books.map(book => (
+          <div key={book.bookId} className="col">
+            <div className="card h-100">
+              <div className="card-header d-flex justify-content-between align-items-center">
+                <span className={`badge ${book.classification.toLowerCase() === 'fiction' ? 'badge-fiction' : 'badge-non-fiction'}`}>
+                  {book.classification}
+                </span>
+                <span className="price-tag">{formatPrice(book.price)}</span>
+              </div>
+              <div className="card-body">
+                <h5 className="card-title">{book.title}</h5>
+                <h6 className="card-subtitle mb-2 text-muted">
+                  <i className="bi bi-person me-1"></i> {book.author}
+                </h6>
+                <div className="card-text">
+                  <p><i className="bi bi-building me-1"></i> Publisher: {book.publisher}</p>
+                  <p><i className="bi bi-upc me-1"></i> ISBN: {book.isbn}</p>
+                  <p><i className="bi bi-tag me-1"></i> Category: {book.category}</p>
+                  <p><i className="bi bi-file-text me-1"></i> Pages: {book.pageCount}</p>
+                </div>
+                <div className="d-grid gap-2">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => addToCart(book)}
+                  >
+                    <i className="bi bi-cart-plus me-1"></i> Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   if (loading && !bookData) {
     return <div className="text-center p-5">Loading books...</div>;
   }
 
   return (
-    <div className="container-fluid my-4">
-      {/* Cart modal */}
-      {renderCartModal()}
-      
-      {/* Main content using Bootstrap Grid */}
-      <div className="row">
-        {/* Sidebar for filtering - takes 3 columns on medium and larger screens */}
-        <div className="col-md-3 mb-4">
-          <div className="card sticky-top" style={{ top: '1rem' }}>
-            <div className="card-header bg-primary text-white">
-              <h5 className="mb-0">Filter Books</h5>
-            </div>
-            <div className="card-body">
-              <h6 className="card-subtitle mb-3">Categories</h6>
-              <div className="list-group">
-                {categories.map(category => (
-                  <button
-                    key={category}
-                    className={`list-group-item list-group-item-action ${selectedCategory === category ? 'active' : ''}`}
-                    onClick={() => handleCategoryChange(category)}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {/* Cart summary card - #notcoveredinthevideos - Bootstrap Sticky positioning */}
-          <div className="card mt-4 sticky-top" style={{ top: '20rem' }}>
-            <div className="card-header bg-info text-white">
-              <h5 className="mb-0">Cart Summary</h5>
-            </div>
-            <div className="card-body">
-              <p><strong>Items:</strong> {cart.itemCount}</p>
-              <p><strong>Total:</strong> {formatPrice(cart.totalPrice)}</p>
-              <button 
-                className="btn btn-success w-100"
-                onClick={() => setShowCart(true)}
-                disabled={cart.items.length === 0}
+    <div className="container">
+      {/* Filter and Sort Controls */}
+      <div className="card mb-4 shadow-sm">
+        <div className="card-body">
+          <div className="row g-3">
+            <div className="col-md-4">
+              <label className="form-label">Category</label>
+              <select 
+                className="form-select"
+                value={selectedCategory}
+                onChange={(e) => handleCategoryChange(e.target.value)}
               >
-                View Cart
-              </button>
+                <option value="">All Categories</option>
+                {categories.filter(cat => cat !== 'All').map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-4">
+              <label className="form-label">Sort By</label>
+              <select
+                className="form-select"
+                value={sortField}
+                onChange={handleSort}
+              >
+                <option value="title">Title</option>
+                <option value="author">Author</option>
+                <option value="pageCount">Page Count</option>
+                <option value="price">Price</option>
+              </select>
+            </div>
+            <div className="col-md-4">
+              <label className="form-label">Order</label>
+              <select
+                className="form-select"
+                value={sortOrder}
+                onChange={handleSort}
+              >
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
             </div>
           </div>
         </div>
-        
-        {/* Main content - takes 9 columns on medium and larger screens */}
-        <div className="col-md-9">
-          <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-            <h2 className="mb-0">
-              {selectedCategory === 'All' || !selectedCategory 
-                ? 'All Books' 
-                : `${selectedCategory} Books`}
-            </h2>
-            
-            {/* Cart button for small screens */}
-            <div className="d-block d-md-none mb-3">
-              <button 
-                className="btn btn-primary position-relative"
-                onClick={() => setShowCart(true)}
-              >
-                <i className="bi bi-cart"></i> View Cart
-                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                  {cart.itemCount}
-                </span>
-              </button>
-            </div>
+      </div>
+
+      {/* Display info about API status */}
+      {usingMockData && (
+        <div className="alert alert-warning mb-4" role="alert">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          <strong>Using mock data.</strong> The backend API could not be reached, so we're displaying sample data.
+        </div>
+      )}
+
+      {/* Error message */}
+      {error && (
+        <div className="alert alert-danger mb-4" role="alert">
+          <i className="bi bi-x-circle-fill me-2"></i>
+          {error}
+        </div>
+      )}
+
+      {/* Books List */}
+      <div className="mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h2><i className="bi bi-collection me-2"></i>Books</h2>
+          <div>
+            <button
+              className="btn btn-sm btn-outline-secondary me-2"
+              onClick={() => setShowCart(true)}
+            >
+              <i className="bi bi-cart me-1"></i>
+              Cart ({cart.itemCount})
+            </button>
           </div>
-          
-          {usingMockData ? (
-            <div className="alert alert-info mb-3">
-              <strong>Using sample data:</strong> Backend API connection not detected. 
-              Using local sample data instead of the real database.
+        </div>
+
+        {loading ? (
+          <div className="text-center p-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
             </div>
-          ) : null}
-          
-          {error && (
-            <div className="alert alert-danger mb-3">
-              {error}
-              <div className="mt-2">
-                <button className="btn btn-primary" onClick={fetchBooks}>
-                  Try Again
-                </button>
-              </div>
-            </div>
-          )}
-          
-          {/* Controls row */}
+            <p className="mt-2">Loading books...</p>
+          </div>
+        ) : (
+          renderBooks()
+        )}
+      </div>
+
+      {/* Pagination Controls */}
+      {bookData && bookData.totalPages > 1 && (
+        <div className="d-flex justify-content-center mt-4 mb-4">
+          {renderPagination()}
+        </div>
+      )}
+
+      {/* Books per page controls */}
+      <div className="card shadow-sm mt-4">
+        <div className="card-body">
           <div className="row g-3 mb-4 align-items-center">
             <div className="col-sm-auto">
-              <label className="col-form-label">Books per page:</label>
+              <label className="form-label mb-0">Books per page:</label>
             </div>
             <div className="col-sm-auto">
               <select
@@ -480,59 +539,16 @@ const BookList = () => {
                 onClick={fetchBooks} 
                 disabled={loading}
               >
+                <i className="bi bi-arrow-clockwise me-1"></i>
                 {loading ? 'Refreshing...' : 'Refresh'}
               </button>
             </div>
           </div>
-
-          {loading && <div className="text-center p-3">Loading...</div>}
-
-          {!loading && (
-            <>
-              {/* Book cards using Bootstrap Grid - #notcoveredinthevideos - Bootstrap Card Deck with responsive grid */}
-              <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
-                {bookData?.books.map((book: Book) => (
-                  <div className="col" key={book.bookId}>
-                    <div className="card h-100 shadow-sm">
-                      <div className="card-header bg-light">
-                        <h5 className="card-title mb-0 text-truncate" title={book.title}>{book.title}</h5>
-                      </div>
-                      <div className="card-body">
-                        <p className="card-text"><strong>Author:</strong> {book.author}</p>
-                        <p className="card-text"><strong>Category:</strong> 
-                          <span className="badge bg-secondary ms-1">{book.category}</span>
-                        </p>
-                        <p className="card-text"><strong>Price:</strong> {formatPrice(book.price)}</p>
-                      </div>
-                      <div className="card-footer bg-white border-top-0">
-                        <button 
-                          className="btn btn-primary w-100" 
-                          onClick={() => addToCart(book)}
-                        >
-                          Add to Cart
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {bookData && bookData.books.length === 0 && (
-                <div className="alert alert-info">No books found.</div>
-              )}
-
-              <div className="d-flex justify-content-between align-items-center flex-wrap">
-                {bookData && (
-                  <div className="mb-2 mb-md-0">
-                    Showing {bookData.books.length} of {bookData.totalCount} books
-                  </div>
-                )}
-                {renderPagination()}
-              </div>
-            </>
-          )}
         </div>
       </div>
+
+      {/* Cart Modal */}
+      {renderCartModal()}
     </div>
   );
 };

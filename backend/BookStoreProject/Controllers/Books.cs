@@ -80,6 +80,67 @@ namespace BookStoreProject.Controllers
             return book;
         }
         
+        // POST: api/Books
+        [HttpPost]
+        public async Task<ActionResult<Book>> CreateBook(Book book)
+        {
+            _bookContext.Books.Add(book);
+            await _bookContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetBook), new { id = book.BookId }, book);
+        }
+
+        // PUT: api/Books/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateBook(int id, Book book)
+        {
+            if (id != book.BookId)
+            {
+                return BadRequest();
+            }
+
+            _bookContext.Entry(book).State = EntityState.Modified;
+
+            try
+            {
+                await _bookContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!BookExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // DELETE: api/Books/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBook(int id)
+        {
+            var book = await _bookContext.Books.FindAsync(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            _bookContext.Books.Remove(book);
+            await _bookContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool BookExists(int id)
+        {
+            return _bookContext.Books.Any(e => e.BookId == id);
+        }
+        
         // Helper methods for sorting
         private IQueryable<Book> ApplySortingAscending(IQueryable<Book> query, string sortField)
         {

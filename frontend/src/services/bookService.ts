@@ -3,9 +3,10 @@ import { Book, PagedBookResult } from '../types/Book';
 
 // List of possible API endpoints to try in order
 const API_ENDPOINTS = [
-  'http://localhost:5200/api',   // Explicitly specified port
-  'https://localhost:7043/api',  // HTTPS with port from launchSettings.json
-  'http://localhost:5017/api',   // HTTP with port from launchSettings.json
+  'http://localhost:5300/api',   // Explicitly specified port - updated
+  'https://localhost:7300/api',  // HTTPS with port from launchSettings.json - updated
+  'http://localhost:5017/api',   // Old HTTP port (keeping as fallback)
+  'https://localhost:7043/api',  // Old HTTPS port (keeping as fallback)
   'https://localhost:5001/api',  // Common HTTPS default port
   'http://localhost:5000/api'    // Common HTTP default port
 ];
@@ -301,4 +302,58 @@ export const getBookById = async (id: number): Promise<Book> => {
   const book = mockBooks.books.find(b => b.bookId === id);
   if (book) return Promise.resolve(book);
   throw new Error('Book not found in mock data');
+};
+
+// Function to create a new book
+export const createBook = async (book: Book): Promise<Book> => {
+  try {
+    const apiUrl = await findWorkingApiEndpoint();
+    
+    if (!useMockData) {
+      const response = await axios.post<Book>(`${apiUrl}/Books`, book);
+      return response.data;
+    }
+  } catch (error) {
+    console.error('Error creating book:', error);
+    throw error;
+  }
+  
+  // Mock implementation in case the API is not available
+  throw new Error('Create book operation not available in mock mode');
+};
+
+// Function to update a book
+export const updateBook = async (id: number, book: Book): Promise<void> => {
+  try {
+    const apiUrl = await findWorkingApiEndpoint();
+    
+    if (!useMockData) {
+      await axios.put(`${apiUrl}/Books/${id}`, book);
+      return;
+    }
+  } catch (error) {
+    console.error(`Error updating book with ID ${id}:`, error);
+    throw error;
+  }
+  
+  // Mock implementation in case the API is not available
+  throw new Error('Update book operation not available in mock mode');
+};
+
+// Function to delete a book
+export const deleteBook = async (id: number): Promise<void> => {
+  try {
+    const apiUrl = await findWorkingApiEndpoint();
+    
+    if (!useMockData) {
+      await axios.delete(`${apiUrl}/Books/${id}`);
+      return;
+    }
+  } catch (error) {
+    console.error(`Error deleting book with ID ${id}:`, error);
+    throw error;
+  }
+  
+  // Mock implementation in case the API is not available
+  throw new Error('Delete book operation not available in mock mode');
 };
