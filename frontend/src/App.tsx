@@ -12,6 +12,7 @@ function App() {
   // Load Bootstrap JS on component mount
   useEffect(() => {
     // Dynamic import of Bootstrap JS
+    // @ts-ignore
     import('bootstrap/dist/js/bootstrap.bundle.min.js');
   }, []);
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getBooks, isUsingRealApiData } from '../services/bookService';
 import { Book, PagedBookResult, CartItem, ShoppingCart } from '../types/Book';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const BookList = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -29,7 +29,6 @@ const BookList = () => {
   const [showCart, setShowCart] = useState<boolean>(false);
   
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBooks();
@@ -91,22 +90,14 @@ const BookList = () => {
     setCurrentPage(1); // Reset to first page when changing category
   };
 
-  const handleSort = (field: string) => {
-    if (field === sortField) {
-      // Toggle sort order if clicking the same field
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      // New field, default to ascending
-      setSortField(field);
-      setSortOrder('asc');
-    }
-  };
-
-  const getSortIcon = (field: string) => {
-    if (field !== sortField) return null;
-    return sortOrder === 'asc' ? '↑' : '↓';
+  const handleSortFieldChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortField(e.target.value);
   };
   
+  const handleSortOrderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortOrder(e.target.value);
+  };
+
   // Shopping cart methods
   const addToCart = (book: Book) => {
     setCart(prevCart => {
@@ -346,24 +337,6 @@ const BookList = () => {
     );
   };
 
-  // Render cart summary badge
-  const renderCartSummary = () => {
-    return (
-      <div className="position-sticky top-0 start-100 translate-middle">
-        <button 
-          className="btn btn-primary position-relative rounded-circle p-3"
-          onClick={() => setShowCart(true)}
-          style={{ width: '60px', height: '60px' }}
-        >
-          <i className="bi bi-cart-fill fs-4"></i>
-          <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-            {cart.itemCount}
-          </span>
-        </button>
-      </div>
-    );
-  };
-
   // Render book cards
   const renderBooks = () => {
     if (!bookData || !bookData.books || bookData.books.length === 0) {
@@ -441,7 +414,7 @@ const BookList = () => {
               <select
                 className="form-select"
                 value={sortField}
-                onChange={handleSort}
+                onChange={handleSortFieldChange}
               >
                 <option value="title">Title</option>
                 <option value="author">Author</option>
@@ -454,7 +427,7 @@ const BookList = () => {
               <select
                 className="form-select"
                 value={sortOrder}
-                onChange={handleSort}
+                onChange={handleSortOrderChange}
               >
                 <option value="asc">Ascending</option>
                 <option value="desc">Descending</option>

@@ -3,8 +3,9 @@ import { Book, PagedBookResult } from '../types/Book';
 
 // List of possible API endpoints to try in order
 const API_ENDPOINTS = [
-  'http://localhost:5300/api',   // Explicitly specified port - updated
-  'https://localhost:7300/api',  // HTTPS with port from launchSettings.json - updated
+  'https://bookstoreprojectyuh.azurewebsites.net/api',  // Azure deployed endpoint (first priority)
+  'http://localhost:5300/api',   // Local development port
+  'https://localhost:7300/api',  // HTTPS local development port
   'http://localhost:5017/api',   // Old HTTP port (keeping as fallback)
   'https://localhost:7043/api',  // Old HTTPS port (keeping as fallback)
   'https://localhost:5001/api',  // Common HTTPS default port

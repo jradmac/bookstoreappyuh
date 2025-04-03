@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Book, PagedBookResult } from '../types/Book';
+import { Book } from '../types/Book';
 import { getBooks, deleteBook, createBook, updateBook } from '../services/bookService';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
